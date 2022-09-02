@@ -1,9 +1,31 @@
 const express = require("express");
-const app = express();
+const mysql = require("mysql");
 const { users, getNextID } = require("./data");
 
 const PORT = 5000;
 const HOSTNAME = "127.0.0.1";
+
+const app = express();
+const connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "1234",
+  database: "login",
+});
+
+// Connecting to database
+connection.connect((err) => {
+  if (err) {
+    console.log("Error in the connection");
+    console.log(err);
+  } else {
+    console.log(`Database Connected`);
+    connection.query(`SELECT * FROM login.users`, (err, result) => {
+      if (err) console.log(`Error executing the query - ${err}`);
+      else console.log("Result: ", result);
+    });
+  }
+});
 
 app.use(express.static("./public"));
 // parse form data
