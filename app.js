@@ -13,25 +13,18 @@ const connection = mysql.createConnection({
   database: "login",
 });
 
-let users = [];
-
 // Connecting to database
 connection.connect((err) => {
   if (err) {
     console.log("Error in the connection");
     console.log(err);
-    error = err;
     return;
   }
 
   console.log(`Database Connected`);
   connection.query(`SELECT * FROM login.users`, (err, result) => {
-    if (err) {
-      console.log(`Error executing the query - ${err}`);
-    } else {
-      console.log("Result: ", result);
-      // users = result.map();
-    }
+    if (err) console.log(`Error executing the query - ${err}`);
+    else console.log("Result: ", result);
   });
 });
 
@@ -43,19 +36,19 @@ app.post("/login", (req, res) => {
   const { name, password } = req.body;
 
   if (name && password) {
-    // users.push({
-    //   id: null,
-    //   name,
-    //   password,
-    // });
-    connection.query(
-      `INSERT INTO login.users(id,name,password) VALUES (null,"${name}","${password}")`,
-      (err, result) => {
-        if (err) console.log(err);
-        else console.log(result);
-      }
-    );
-    console.log(users);
+    new Promise((res, rej) => {
+      connection.query("SELECT MAX(id) FROM login.users", (err, result) => {
+        if (err) {
+          console.log(err);
+          rej("error: ", err);
+          return;
+        }
+        res(result[0]["MAX(id)"]);
+      });
+    })
+      .then((val) => connection())
+      .catch((err) => console.log(err));
+
     return res.status(201).send("<h1>account created</h1>");
   }
 
