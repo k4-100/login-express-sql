@@ -1,15 +1,9 @@
-let nextID = 0;
-
-const getNextID = () => nextID++;
-const users = [
-  {
-    id: getNextID(),
-    name: "root",
-    password: "unix",
-  },
-];
+const getUser = (id, name, password) => ({
+  id,
+  name,
+  password,
+});
 
 module.exports = {
-  users,
-  getNextID,
+  getUser,
 };

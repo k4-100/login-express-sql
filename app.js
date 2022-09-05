@@ -1,6 +1,6 @@
 const express = require("express");
 const mysql = require("mysql");
-const { users, getNextID } = require("./data");
+const { getUser } = require("./data");
 
 const PORT = 5000;
 const HOSTNAME = "127.0.0.1";
@@ -13,18 +13,26 @@ const connection = mysql.createConnection({
   database: "login",
 });
 
+let users = [];
+
 // Connecting to database
 connection.connect((err) => {
   if (err) {
     console.log("Error in the connection");
     console.log(err);
-  } else {
-    console.log(`Database Connected`);
-    connection.query(`SELECT * FROM login.users`, (err, result) => {
-      if (err) console.log(`Error executing the query - ${err}`);
-      else console.log("Result: ", result);
-    });
+    error = err;
+    return;
   }
+
+  console.log(`Database Connected`);
+  connection.query(`SELECT * FROM login.users`, (err, result) => {
+    if (err) {
+      console.log(`Error executing the query - ${err}`);
+    } else {
+      console.log("Result: ", result);
+      // users = result.map();
+    }
+  });
 });
 
 app.use(express.static("./public"));
@@ -35,11 +43,18 @@ app.post("/login", (req, res) => {
   const { name, password } = req.body;
 
   if (name && password) {
-    users.push({
-      id: getNextID(),
-      name,
-      password,
-    });
+    // users.push({
+    //   id: null,
+    //   name,
+    //   password,
+    // });
+    connection.query(
+      `INSERT INTO login.users(id,name,password) VALUES (null,"${name}","${password}")`,
+      (err, result) => {
+        if (err) console.log(err);
+        else console.log(result);
+      }
+    );
     console.log(users);
     return res.status(201).send("<h1>account created</h1>");
   }
