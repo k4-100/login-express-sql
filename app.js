@@ -32,24 +32,37 @@ app.use(express.static("./public"));
 // parse form data
 app.use(express.urlencoded({ extended: false }));
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { name, password } = req.body;
-
+  const data = {
+    success: false,
+    result: {},
+  };
   if (name && password) {
-    new Promise((res, rej) => {
-      connection.query("SELECT MAX(id) FROM login.users", (err, result) => {
+    connection.query(
+      `INSERT INTO login.users VALUES(null,'${name}','${password}')`,
+      (err, result) => {
         if (err) {
           console.log(err);
-          rej("error: ", err);
-          return;
         }
-        res(result[0]["MAX(id)"]);
-      });
-    })
-      .then((val) => connection())
-      .catch((err) => console.log(err));
+      }
+    );
+    const p1 = new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT * FROM login.users WHERE users.name="${name}" AND users.password="${password}"`,
+        (err, result) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }
+          data.success = true;
+          data.result = result;
+          resolve(data);
+        }
+      );
+    }).then((dt) => res.status(201).json(data));
 
-    return res.status(201).send("<h1>account created</h1>");
+    return await p1;
   }
 
   res.status(404).send("<p>ERROR: no user name or password provided</p>");
