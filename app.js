@@ -34,10 +34,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.post("/login", async (req, res) => {
   const { name, password } = req.body;
-  const data = {
-    success: false,
-    result: {},
-  };
   if (name && password) {
     connection.query(
       `INSERT INTO login.users VALUES(null,'${name}','${password}')`,
@@ -55,12 +51,20 @@ app.post("/login", async (req, res) => {
             console.log(err);
             reject(err);
           }
-          data.success = true;
-          data.result = result;
+          const data = {
+            success: true,
+            result,
+          };
           resolve(data);
         }
       );
-    }).then((dt) => res.status(201).json(data));
+    }).then((dt) => {
+      const { id, name } = dt.result[0];
+      const msg = dt
+        ? `<h1>name: ${name}</h1> <h4>id: ${id}</h4>`
+        : '<h1> CAN"T FIND A USER </h1>';
+      return res.status(201).send(msg);
+    });
 
     return await p1;
   }
