@@ -62,9 +62,36 @@ app.post("/login", async (req, res) => {
     }).then((dt) => {
       const { id, name } = dt.result[0];
       const msg = dt
-        ? res
-            .status(201)
-            .sendFile(path.resolve(__dirname, "public/profile.html"))
+        ? res.status(201).send(`
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                  <title>Document</title>
+                </head>
+                <body>
+                  <h1>name: ${name}</h1>
+                  <h4>id: ${id}</h4>
+                  <button id="del">delete account</button>
+                  <script type="text/javascript" src="./axios.min.js">
+                    const axios = require('axios').default;
+                  </script>
+                  <script type="text/javascript">
+                    console.log("text", axios);
+                    const btnDel = document.querySelector("#del");
+                    btnDel.addEventListener("click", () => {
+                      console.log(btnDel);
+                      axios
+                        .delete("http://localhost:5000/login/${id}")
+                        .then((res) => console.log("axios res: ", res))
+                        .catch((err) => console.log("axios err: ", err));
+                    });
+                  </script>
+                </body>
+              </html>
+            `)
         : res.status(404).send('<h1> CAN"T FIND A USER </h1>');
       return;
     });
@@ -75,14 +102,33 @@ app.post("/login", async (req, res) => {
   res.status(404).send("<p>ERROR: no user name or password provided</p>");
 });
 
-app.delete("/login/:id", (req, res) => {
-  console.log(req.url);
-  // const p = new Promise( (resolve, reject) =>{
-  //   connection.query(
-  //     `DELETE FROM login.users WHERE id=${req.url}`
-  //   )
-  // })
-  // res.status(404).send("<h4>can't find the account</h4>");
+app.delete("/login/:id", async (req, res) => {
+  console.log(req.params.id);
+
+  const p = new Promise((resolve, reject) => {
+    connection.query(
+      `DELETE FROM login.users WHERE id=${parseInt(req.params.id)}`,
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+        }
+        const data = {
+          success: true,
+          result,
+        };
+        resolve(data);
+      }
+    );
+  })
+    .then((dt) => {
+      return dt.success
+        ? res.status(201).send("<h4>removed the account</h4>")
+        : res.status(404).send("<h4>can't find the account</h4>");
+    })
+    .catch((err) => res.status(200).send("<h4> ERROR </h4>"))
+    .finally(() => console.log("finished promise"));
+  return await p;
 });
 
 app.all("*", (req, res) => {
