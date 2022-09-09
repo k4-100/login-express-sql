@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>name: ${name}</h1>
+    <h4>id: ${id}</h4>
+    <button id="del">delete account</button>
+    <script type="text/javascript" src="./axios.min.js">
+      const axios = require('axios').default;
+    </script>
+    <script type="text/javascript">
+      console.log("text", axios);
+      const btnDel = document.querySelector("#del");
+      btnDel.addEventListener("click", () => {
+        console.log(btnDel);
+        axios
+          .delete("http://localhost:5000/login/80")
+          .then((res) => console.log("axios res: ", res))
+          .catch((err) => console.log("axios err: ", err));
+      });
+    </script>
+  </body>
+</html>

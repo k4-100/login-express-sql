@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const mysql = require("mysql");
 const axios = require("axios");
@@ -61,20 +62,11 @@ app.post("/login", async (req, res) => {
     }).then((dt) => {
       const { id, name } = dt.result[0];
       const msg = dt
-        ? `
-      <h1>name: ${name}</h1> 
-      <h4>id: ${id}</h4> 
-      <button id="del"> 
-        delete account
-      </button>
-      <script type="text/javascript" src="./axios.min.js"> 
-        const axios = require('axios');
-        const btnDel = document.querySelector('#del');
-        console.log(btnDel);
-      </script> 
-      `
-        : '<h1> CAN"T FIND A USER </h1>';
-      return res.status(201).send(msg);
+        ? res
+            .status(201)
+            .sendFile(path.resolve(__dirname, "public/profile.html"))
+        : res.status(404).send('<h1> CAN"T FIND A USER </h1>');
+      return;
     });
 
     return await p1;
@@ -84,13 +76,13 @@ app.post("/login", async (req, res) => {
 });
 
 app.delete("/login/:id", (req, res) => {
-  console.log(req.url.id);
+  console.log(req.url);
   // const p = new Promise( (resolve, reject) =>{
   //   connection.query(
   //     `DELETE FROM login.users WHERE id=${req.url}`
   //   )
   // })
-  res.status(404).send("<h4>can't find the account</h4>");
+  // res.status(404).send("<h4>can't find the account</h4>");
 });
 
 app.all("*", (req, res) => {
