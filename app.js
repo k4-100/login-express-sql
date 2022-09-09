@@ -1,7 +1,7 @@
 const express = require("express");
 const mysql = require("mysql");
-const { getUser } = require("./data");
-
+const axios = require("axios");
+// const { getUser } = require("./data");
 const PORT = 5000;
 const HOSTNAME = "127.0.0.1";
 
@@ -61,7 +61,18 @@ app.post("/login", async (req, res) => {
     }).then((dt) => {
       const { id, name } = dt.result[0];
       const msg = dt
-        ? `<h1>name: ${name}</h1> <h4>id: ${id}</h4>`
+        ? `
+      <h1>name: ${name}</h1> 
+      <h4>id: ${id}</h4> 
+      <button id="del"> 
+        delete account
+      </button>
+      <script type="text/javascript" src="./axios.min.js"> 
+        const axios = require('axios');
+        const btnDel = document.querySelector('#del');
+        console.log(btnDel);
+      </script> 
+      `
         : '<h1> CAN"T FIND A USER </h1>';
       return res.status(201).send(msg);
     });
@@ -70,6 +81,16 @@ app.post("/login", async (req, res) => {
   }
 
   res.status(404).send("<p>ERROR: no user name or password provided</p>");
+});
+
+app.delete("/login/:id", (req, res) => {
+  console.log(req.url.id);
+  // const p = new Promise( (resolve, reject) =>{
+  //   connection.query(
+  //     `DELETE FROM login.users WHERE id=${req.url}`
+  //   )
+  // })
+  res.status(404).send("<h4>can't find the account</h4>");
 });
 
 app.all("*", (req, res) => {
